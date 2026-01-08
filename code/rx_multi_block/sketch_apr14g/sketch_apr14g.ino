@@ -1,10 +1,19 @@
+// Rx in NodeMCU
+// RST -> D0
+// DIO0 -> D1
+// DIO1 -> D2
+// SCK -> D5
+// MISO -> D6
+// MOSI -> D7
+// NSS -> D8
+
 #include <SPI.h>
 #include <LoRa.h>
 #include <AESLib.h>
 
-#define LORA_SS    4  
-#define LORA_RST   5  
-#define LORA_DIO0  16 
+#define LORA_SS    15 
+#define LORA_RST   16  
+#define LORA_DIO0  2 
 
 AESLib aesLib;
 const int BLOCK_SIZE = 16;

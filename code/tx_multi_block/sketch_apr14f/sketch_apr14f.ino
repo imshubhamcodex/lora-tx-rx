@@ -1,3 +1,11 @@
+// Tx in Arduino
+// DIO0 -> D2
+// SCK -> D13
+// MISO -> D12
+// MOSI -> D11
+// NSS -> D10
+// RST -> D9
+
 #include <SPI.h>
 #include <LoRa.h>
 #include <AESLib.h>
@@ -24,6 +32,9 @@ void setup() {
   Serial.println("TX Ready");
 
   LoRa.setPins(LORA_SS, LORA_RST, LORA_DIO0);
+  // LoRa.setSpreadingFactor(7);      // SF7
+  // LoRa.setSignalBandwidth(125E3);  // 125 kHz
+
   if (!LoRa.begin(433E6)) {
     Serial.println("LoRa init failed.");
     while (true);
@@ -67,7 +78,7 @@ void encryptAndSend(String msg) {
 
     Serial.print("Block "); Serial.print(i); Serial.print(" Sent: ");
     printHex(encrypted, BLOCK_SIZE);
-    delay(200);  // Avoid collision
+    delay(100);  // Avoid collision
   }
 
   Serial.println("All blocks sent.\n");
