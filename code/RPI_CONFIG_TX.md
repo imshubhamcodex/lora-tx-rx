@@ -103,17 +103,74 @@ Ctrl + o -> Enter -> Ctrl + x
 ```
 ---
 
+## 📝 Receiver Code (rx.py)
+```bash
+nano rx.py
+```
+
+```python
+from LoRaRF import SX127x
+import time
+
+# Pin definitions (Matching your tx.py)
+bus = 0
+cs = 0
+reset = 17
+dio0 = 4
+
+lora = SX127x()
+
+# Initialize
+if not lora.begin(bus, cs, reset, dio0):
+    print("LoRa initialization failed!")
+    exit()
+
+lora.setFrequency(433000000)
+
+print("Waiting for messages...")
+
+try:
+    while True:
+        # Request receiver mode
+        lora.request()
+        lora.wait()
+        
+        # Check if a packet was received
+        if lora.available():
+            # Read payload
+            payload = lora.read(lora.available())
+            message = "".join([chr(x) for x in payload])
+            
+            # Get signal quality stats
+            rssi = lora.packetRssi()
+            snr = lora.packetSnr()
+            
+            print(f"Received: {message} | RSSI: {rssi} dBm | SNR: {snr} dB")
+            
+except KeyboardInterrupt:
+    print("\nReceiver stopped.")
+```
+```bash
+Ctrl + o -> Enter -> Ctrl + x
+```
+---
+
 ## ▶️ Run the Transmitter
 
 ```bash
 python tx.py
 ```
-
 Expected output:
 
 ```
 Sending...
 Sent!
+```
+
+## ▶️ Run the Receiver
+
+```bash
+python rx.py
 ```
 
 ---
