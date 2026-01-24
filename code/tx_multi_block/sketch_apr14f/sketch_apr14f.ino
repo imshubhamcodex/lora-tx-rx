@@ -26,19 +26,29 @@ char aes_iv[BLOCK_SIZE] = {
   0x0C, 0x0D, 0x0E, 0x0F
 };
 
+byte aes_iv_master[BLOCK_SIZE] = {
+  0x00, 0x01, 0x02, 0x03,
+  0x04, 0x05, 0x06, 0x07,
+  0x08, 0x09, 0x0A, 0x0B,
+  0x0C, 0x0D, 0x0E, 0x0F
+};
+
 void setup() {
   Serial.begin(9600);
   delay(1000);
   Serial.println("TX Ready");
 
   LoRa.setPins(LORA_SS, LORA_RST, LORA_DIO0);
-  // LoRa.setSpreadingFactor(7);      // SF7
-  // LoRa.setSignalBandwidth(125E3);  // 125 kHz
 
   if (!LoRa.begin(433E6)) {
     Serial.println("LoRa init failed.");
     while (true);
   }
+  // LoRa.setSpreadingFactor(12);
+  // LoRa.setSignalBandwidth(62.5E3);
+  // LoRa.setCodingRate4(8);
+  // LoRa.setTxPower(20);
+
 }
 
 void loop() {
@@ -53,6 +63,9 @@ void loop() {
 }
 
 void encryptAndSend(String msg) {
+  
+  memcpy(aes_iv, aes_iv_master, BLOCK_SIZE);  // RESET IV
+
   int msgLen = msg.length();
   int padLen = BLOCK_SIZE - (msgLen % BLOCK_SIZE);
   if (padLen == 0) padLen = BLOCK_SIZE;
@@ -76,7 +89,7 @@ void encryptAndSend(String msg) {
     LoRa.write(encrypted, BLOCK_SIZE);
     LoRa.endPacket();
 
-    Serial.print("Block "); Serial.print(i); Serial.print(" Sent: ");
+    Serial.print("Block "); Serial.print(i+1); Serial.print("/"); Serial.print(blocks); Serial.print(" Sent: ");
     printHex(encrypted, BLOCK_SIZE);
     delay(100);  // Avoid collision
   }
