@@ -33,6 +33,7 @@
 #define DISP_CS_PIN    D3
 
 char displayBuf[500];
+int lastRssi = 0;
 
 MD_Parola display = MD_Parola(
   HARDWARE_TYPE,
@@ -75,15 +76,14 @@ void setup() {
 
   // ---- LoRa ----
   LoRa.setPins(LORA_SS, LORA_RST, LORA_DIO0);
+
   if (!LoRa.begin(433E6)) {
     Serial.println("LoRa init failed");
     while (true);
   }
-
-  // Optional but recommended (match TX if set)
-  // LoRa.setSpreadingFactor(7);
-  // LoRa.setSignalBandwidth(125E3);
-  // LoRa.setCodingRate4(5);
+  // LoRa.setSpreadingFactor(12);
+  // LoRa.setSignalBandwidth(62.5E3);
+  // LoRa.setCodingRate4(8);
 
   Serial.println("LoRa RX Ready");
 
@@ -101,12 +101,28 @@ void setup() {
   );
 }
 
+// // Just to Test TX
+// void loop() {
+//   int packetSize = LoRa.parsePacket();
+//   if (packetSize > 0) {
+//     Serial.print("Got packet, size: ");
+//     Serial.println(packetSize);
+//     while (LoRa.available()) {
+//       Serial.print((char)LoRa.read()); // print raw byte as char
+//     }
+//     Serial.println();
+//   }
+// }
+
 // ================= Loop =================
 void loop() {
   display.displayAnimate();
 
   int packetSize = LoRa.parsePacket();
+
   if (packetSize == BLOCK_SIZE) {
+    lastRssi = LoRa.packetRssi(); 
+    
     byte encrypted[BLOCK_SIZE];
     for (int i = 0; i < BLOCK_SIZE; i++) {
       encrypted[i] = LoRa.read();
@@ -155,9 +171,15 @@ void processMessage() {
   Serial.print("Decrypted Message: ");
   Serial.println(msg);
 
+  Serial.print("RSSI: ");
+  Serial.print(lastRssi);
+  Serial.println(" dBm");
+
+  String fullMsg = msg + "  RSSI:" + String(lastRssi) + "dBm";
+
   display.displayClear();
   display.displayReset();
-  msg.toCharArray(displayBuf, sizeof(displayBuf));
+  fullMsg.toCharArray(displayBuf, sizeof(displayBuf));
   display.displayText(
     displayBuf,
     PA_LEFT,
