@@ -61,13 +61,20 @@ byte aes_iv[BLOCK_SIZE] = {
   0x0C, 0x0D, 0x0E, 0x0F
 };
 
+byte aes_iv_master[BLOCK_SIZE] = {
+  0x00, 0x01, 0x02, 0x03,
+  0x04, 0x05, 0x06, 0x07,
+  0x08, 0x09, 0x0A, 0x0B,
+  0x0C, 0x0D, 0x0E, 0x0F
+};
+
 // ================= Message Buffer =================
-#define MAX_BLOCKS 10
+#define MAX_BLOCKS 20
 
 byte decryptedBlocks[MAX_BLOCKS][BLOCK_SIZE];
 int blockIndex = 0;
 unsigned long lastPacketTime = 0;
-const unsigned long TIMEOUT_MS = 500;
+const unsigned long TIMEOUT_MS = 2000;
 
 // ================= Setup =================
 void setup() {
@@ -121,7 +128,10 @@ void loop() {
   int packetSize = LoRa.parsePacket();
 
   if (packetSize == BLOCK_SIZE) {
-    lastRssi = LoRa.packetRssi(); 
+    lastRssi = LoRa.packetRssi();
+    if (blockIndex == 0) {
+      memcpy(aes_iv, aes_iv_master, BLOCK_SIZE);
+    } 
     
     byte encrypted[BLOCK_SIZE];
     for (int i = 0; i < BLOCK_SIZE; i++) {
