@@ -1,10 +1,10 @@
-# 📡 LoRa SX1278 Transmitter Using Raspberry Pi 4
+# LoRa SX1278 Transmitter Using Raspberry Pi 4
 
 This project demonstrates **LoRa transmission from a Raspberry Pi 4 (TX only)** using an **SX1278 module**, with reception handled by an **Arduino**.
 
 ---
 
-## 📦 Hardware Used
+## Hardware Used
 
 - Raspberry Pi 4  
 - SX1278 LoRa Module (433 MHz)  
@@ -13,7 +13,7 @@ This project demonstrates **LoRa transmission from a Raspberry Pi 4 (TX only)** 
 
 ---
 
-## 🔌 SX1278 ↔ Raspberry Pi Pin Connections
+## SX1278 ↔ Raspberry Pi Pin Connections
 
 | SX1278 Pin | Raspberry Pi GPIO | Physical Pin | Function |
 |-----------|------------------|--------------|----------|
@@ -28,7 +28,7 @@ This project demonstrates **LoRa transmission from a Raspberry Pi 4 (TX only)** 
 
 ---
 
-## ⚙️ Raspberry Pi Configuration
+## Raspberry Pi Configuration
 
 Enable SPI interface:
 
@@ -50,7 +50,13 @@ sudo reboot
 
 ---
 
-## 📁 Project Setup
+## Project Setup
+
+```bash
+sudo apt update
+sudo apt install -y swig python3-dev build-essential
+sudo apt install -y liblgpio-dev
+```
 
 ```bash
 cd Desktop
@@ -62,14 +68,14 @@ source lora_env/bin/activate
 
 ---
 
-## 📥 Install Required Libraries
+## Install Required Libraries
 
 ```bash
-pip install spidev==3.8 rpi-lgpio==0.6 lgpio==0.2.2.0 LoRaRF==1.4.0
+pip install spidev==3.8 rpi-lgpio==0.6 lgpio==0.2.2.0 LoRaRF==1.4.0 pycryptodome
 ```
 ---
 
-## 📝 Transmitter Code (tx.py)
+## Transmitter Code (tx.py)
 ```bash
 nano tx.py
 ```
@@ -103,7 +109,7 @@ Ctrl + o -> Enter -> Ctrl + x
 ```
 ---
 
-## 📝 Receiver Code (rx.py)
+## Receiver Code (rx.py)
 ```bash
 nano rx.py
 ```
@@ -155,7 +161,7 @@ Ctrl + o -> Enter -> Ctrl + x
 ```
 ---
 
-## ▶️ Run the Transmitter
+## Run the Transmitter
 
 ```bash
 python tx.py
@@ -167,7 +173,7 @@ Sending...
 Sent!
 ```
 
-## ▶️ Run the Receiver
+## Run the Receiver
 
 ```bash
 python rx.py
@@ -175,7 +181,7 @@ python rx.py
 
 ---
 
-## 📡 Notes
+## Notes
 
 - Raspberry Pi acts only as **transmitter**
 - Arduino is used as **receiver**
@@ -184,10 +190,14 @@ python rx.py
 
 ---
 
-## ✅ Troubleshooting
+## Troubleshooting
 
 | Issue | Possible Cause |
 |-----|---------------|
 | SX1278 not detected | SPI disabled, wrong wiring |
 | No data received | Frequency / SF / BW mismatch |
 | Unstable behavior | Power supply or loose wires |
+
+
+
+# pip install pycryptodome
