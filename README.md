@@ -1,16 +1,21 @@
-Open Arduino IDE
-Go to File → Preferences
-In Additional Boards Manager URLs, add:
-http://arduino.esp8266.com/stable/package_esp8266com_index.json
-Click OK
-Go to Tools → Board → Boards Manager
-Search “ESP8266”
-Install “esp8266 by ESP8266 Community”
+# ESP8266 Setup Guide
 
-In folder CP210x_Universal_Windows_Driver
-Right click on the silabser.inf file and select Install 
-Now port will be visible
+Follow these steps to configure your Arduino IDE and install the required drivers for ESP8266 development.
 
+### 1. Configure Arduino IDE
+*   Open **Arduino IDE**.
+*   Go to **File** → **Preferences**.
+*   In the **Additional Boards Manager URLs** field, add the following URL:
+    `http://arduino.esp8266.com`
+*   Click **OK**.
 
+### 2. Install ESP8266 Board Package
+*   Go to **Tools** → **Board** → **Boards Manager**.
+*   Search for **"ESP8266"**.
+*   Find **"esp8266 by ESP8266 Community"** and click **Install**.
 
-
+### 3. Install USB Driver (CP210x)
+*   Open the folder **CP210x_Universal_Windows_Driver**.
+*   Right-click on the **silabser.inf** file.
+*   Select **Install**.
+*   The COM port should now be visible under **Tools** → **Port**.
