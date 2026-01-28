@@ -1,4 +1,4 @@
-// ================= LoRa + AES + MAX7219 RX =================
+// ================= LoRa + AES RX =================
 
 // LoRa (SX1278)
 // RST  -> D0
@@ -8,39 +8,14 @@
 // MOSI -> D7
 // NSS  -> D8
 
-// MAX7219 (8x32)
-// DIN -> D2
-// CLK -> D4
-// CS  -> D3
-
 #include <SPI.h>
 #include <LoRa.h>
 #include <AESLib.h>
-#include <MD_Parola.h>
-#include <MD_MAX72xx.h>
 
 // ================= LoRa Pins =================
 #define LORA_SS    15   // D8
 #define LORA_RST   16   // D0
 #define LORA_DIO0  2    // D1
-
-// ================= MAX7219 =================
-#define HARDWARE_TYPE MD_MAX72XX::FC16_HW
-#define MAX_DEVICES 4        // 8x32 matrix
-
-#define DISP_DATA_PIN  D2
-#define DISP_CLK_PIN   D4
-#define DISP_CS_PIN    D3
-
-char displayBuf[500];
-
-MD_Parola display = MD_Parola(
-  HARDWARE_TYPE,
-  DISP_DATA_PIN,
-  DISP_CLK_PIN,
-  DISP_CS_PIN,
-  MAX_DEVICES
-);
 
 // ================= AES =================
 AESLib aesLib;
@@ -53,13 +28,7 @@ byte aes_key[] = {
   0x4A, 0xF1, 0xE1, 0x1A
 };
 
-byte aes_iv[BLOCK_SIZE] = {
-  0x00, 0x01, 0x02, 0x03,
-  0x04, 0x05, 0x06, 0x07,
-  0x08, 0x09, 0x0A, 0x0B,
-  0x0C, 0x0D, 0x0E, 0x0F
-};
-
+byte aes_iv[BLOCK_SIZE];
 byte aes_iv_master[BLOCK_SIZE] = {
   0x00, 0x01, 0x02, 0x03,
   0x04, 0x05, 0x06, 0x07,
@@ -73,7 +42,7 @@ byte aes_iv_master[BLOCK_SIZE] = {
 byte decryptedBlocks[MAX_BLOCKS][BLOCK_SIZE];
 int blockIndex = 0;
 unsigned long lastPacketTime = 0;
-const unsigned long TIMEOUT_MS = 500;
+const unsigned long TIMEOUT_MS = 1500;
 
 // ================= Setup =================
 void setup() {
@@ -87,38 +56,19 @@ void setup() {
     while (true);
   }
 
-  // Optional but recommended (match TX if set)
-  // LoRa.setSpreadingFactor(7);
-  // LoRa.setSignalBandwidth(125E3);
-  // LoRa.setCodingRate4(5);
-
-  Serial.println("LoRa RX Ready");
-
-  // ---- MAX7219 ----
-  display.begin();
-  display.setIntensity(3);
-  display.displayClear();
-  display.displayText(
-    "RX READY",
-    PA_CENTER,
-    80,
-    2000,
-    PA_SCROLL_LEFT,
-    PA_SCROLL_LEFT
-  );
+  Serial.println("LoRa AES RX Ready");
 }
 
 // ================= Loop =================
 void loop() {
-  display.displayAnimate();
 
   int packetSize = LoRa.parsePacket();
   if (packetSize == BLOCK_SIZE) {
-    
+
     if (blockIndex == 0) {
       memcpy(aes_iv, aes_iv_master, BLOCK_SIZE);
     }
-    
+
     byte encrypted[BLOCK_SIZE];
     for (int i = 0; i < BLOCK_SIZE; i++) {
       encrypted[i] = LoRa.read();
@@ -137,6 +87,7 @@ void loop() {
     }
   }
 
+  // Timeout → process message
   if (blockIndex > 0 && millis() - lastPacketTime > TIMEOUT_MS) {
     processMessage();
     blockIndex = 0;
@@ -166,18 +117,6 @@ void processMessage() {
 
   Serial.print("Decrypted Message: ");
   Serial.println(msg);
-
-  display.displayClear();
-  display.displayReset();
-  msg.toCharArray(displayBuf, sizeof(displayBuf));
-  display.displayText(
-    displayBuf,
-    PA_LEFT,
-    80,
-    2000,
-    PA_SCROLL_LEFT,
-    PA_SCROLL_LEFT
-  );
 }
 
 // ================= Helpers =================
