@@ -29,6 +29,7 @@ byte aes_key[] = {
 };
 
 byte aes_iv[BLOCK_SIZE];
+
 byte aes_iv_master[BLOCK_SIZE] = {
   0x00, 0x01, 0x02, 0x03,
   0x04, 0x05, 0x06, 0x07,
@@ -36,13 +37,14 @@ byte aes_iv_master[BLOCK_SIZE] = {
   0x0C, 0x0D, 0x0E, 0x0F
 };
 
+int pkt_count = 0;
 // ================= Message Buffer =================
 #define MAX_BLOCKS 50
 
 byte decryptedBlocks[MAX_BLOCKS][BLOCK_SIZE];
 int blockIndex = 0;
 unsigned long lastPacketTime = 0;
-const unsigned long TIMEOUT_MS = 1500;
+const unsigned long TIMEOUT_MS = 3000;
 
 // ================= Setup =================
 void setup() {
@@ -73,8 +75,8 @@ void loop() {
     for (int i = 0; i < BLOCK_SIZE; i++) {
       encrypted[i] = LoRa.read();
     }
-
-    Serial.print("Received HEX: ");
+    pkt_count += 1;
+    Serial.print("Received HEX " + String(pkt_count) + " : ");
     printHex(encrypted, BLOCK_SIZE);
 
     byte decrypted[BLOCK_SIZE];
@@ -91,6 +93,7 @@ void loop() {
   if (blockIndex > 0 && millis() - lastPacketTime > TIMEOUT_MS) {
     processMessage();
     blockIndex = 0;
+    pkt_count = 0;
   }
 }
 
@@ -115,8 +118,9 @@ void processMessage() {
     }
   }
 
-  Serial.print("Decrypted Message: ");
+  Serial.println("Decrypted Message: ");
   Serial.println(msg);
+  Serial.println(" ");
 }
 
 // ================= Helpers =================
