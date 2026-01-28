@@ -37,7 +37,7 @@ byte aes_iv_master[BLOCK_SIZE] = {
 };
 
 // ================= Message Buffer =================
-#define MAX_BLOCKS 10
+#define MAX_BLOCKS 50
 
 byte decryptedBlocks[MAX_BLOCKS][BLOCK_SIZE];
 int blockIndex = 0;
