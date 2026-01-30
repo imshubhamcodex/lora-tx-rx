@@ -56,6 +56,7 @@ sudo reboot
 sudo apt update
 sudo apt install -y swig python3-dev build-essential
 sudo apt install -y liblgpio-dev
+sudo apt install -y python3-picamera2
 ```
 
 ```bash
